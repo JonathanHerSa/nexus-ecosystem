@@ -1,0 +1,44 @@
+services:
+  # -------------------------------------------------------
+  # SERVICIO 1: AUTH SERVICE (Backend NestJS)
+  # -------------------------------------------------------
+  auth-service:
+    container_name: Auth
+    build:
+      context: ./Auth
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./Auth:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - "3000:3000"
+      - "9229:9229"
+    environment:
+      - DATABASE_URL=postgresql://${AUTH_DB_USER}:${AUTH_DB_PASS}@Auth-DB:5432/${AUTH_DB_NAME}?schema=public
+      - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+    command: npm run start:debug
+    depends_on:
+      - auth-db
+    networks:
+      - nexus-dev-network
+
+    #Base de datos
+  auth-db:
+    image: postgres:17.3-alpine
+    container_name: Auth-DB
+    environment:
+      - POSTGRES_USER=${AUTH_DB_USER}
+      - POSTGRES_PASSWORD=${AUTH_DB_PASS}
+      - POSTGRES_DB=${AUTH_DB_NAME}
+    ports:
+      - "${AUTH_DB_PORT}:5432"
+    volumes:
+      - auth-postgres-data:/var/lib/postgresql/data
+    networks:
+      - nexus-dev-network
+networks:
+  nexus-dev-network:
+    driver: bridge
+volumes:
+  auth-postgres-data:

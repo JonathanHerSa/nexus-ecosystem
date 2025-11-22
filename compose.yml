@@ -5,10 +5,10 @@ services:
   auth-service:
     container_name: Auth
     build:
-      context: ./Auth
+      context: ./AuthMS
       dockerfile: Dockerfile.dev
     volumes:
-      - ./Auth:/usr/src/app
+      - ./AuthMS:/usr/src/app
       - /usr/src/app/node_modules
     ports:
       - "3000:3000"

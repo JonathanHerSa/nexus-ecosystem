@@ -1,0 +1,3 @@
+[submodule "AuthMS"]
+	path = AuthMS
+	url = https://github.com/JonathanHerSa/auth-nexus.git

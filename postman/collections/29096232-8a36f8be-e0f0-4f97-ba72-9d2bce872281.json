@@ -15,6 +15,9 @@
 						"disableBodyPruning": true
 					},
 					"request": {
+						"auth": {
+							"type": "noauth"
+						},
 						"method": "POST",
 						"header": [],
 						"body": {
@@ -72,6 +75,18 @@
 								"packages": {},
 								"requests": {}
 							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "36310a22-faea-4a62-bb19-526bc55ab907",
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
 						}
 					],
 					"id": "29096232-ac114dc0-2099-4732-9cad-ecd72733da65",
@@ -79,11 +94,14 @@
 						"disableBodyPruning": true
 					},
 					"request": {
+						"auth": {
+							"type": "noauth"
+						},
 						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"password\": \"Jessy.2103\",\n  \"email\": \"jhonyhs95@outlook.com\"\n}",
+							"raw": "{\n  \"password\": \"Jessy.2103\",\n  \"email\": \"jhonyhs@gmail.com\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -146,6 +164,39 @@
 				},
 				{
 					"name": "Refresh Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b928544b-1584-46f4-9825-1858fcb53d71",
+								"exec": [
+									"if (pm.response.code === 200 || pm.response.code === 201) {",
+									"    // 1. Convertir la respuesta JSON a objeto",
+									"    const response = pm.response.json();",
+									"",
+									"    // 2. Extraer los tokens",
+									"    const accessToken = response.accessToken;",
+									"    const refreshToken = response.refreshToken;",
+									"",
+									"    // 3. Guardar las variables en la Colección de Postman",
+									"    if (accessToken) {",
+									"        pm.collectionVariables.set(\"accessToken\", accessToken);",
+									"        pm.collectionVariables.set(\"refreshToken\", refreshToken);",
+									"",
+									"        console.log(\"✅ Tokens guardados. Nuevo AT:\", accessToken.substring(0, 20) + \"...\");",
+									"    } else {",
+									"        console.log(\"❌ La respuesta no contiene tokens.\");",
+									"    }",
+									"} else {",
+									"    console.log(\"La solicitud falló con código:\", pm.response.code);",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
 					"id": "29096232-452ff52a-fc9c-419b-b72d-9522c3e39aa4",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
@@ -199,127 +250,19 @@
 		{
 			"listen": "prerequest",
 			"script": {
-				"id": "c510750a-9e9a-4d1a-9bda-423f64a12288",
+				"id": "db241685-1b86-4618-800d-bd60bf032140",
 				"type": "text/javascript",
 				"packages": {},
 				"requests": {},
 				"exec": [
-					"// =======================================================",
-					"// 1. CONFIGURACIÓN INICIAL Y DECLARACIÓN DE VARIABLES",
-					"// =======================================================",
-					"",
-					"// Obtén los tokens y la URL base de las variables de colección",
-					"let accessToken = pm.collectionVariables.get(\"accessToken\");",
-					"let refreshToken = pm.collectionVariables.get(\"refreshToken\");",
-					"const apiBaseUrl = pm.collectionVariables.get(\"baseUrl\") || \"http://localhost:3000/auth\";",
-					"",
-					"const refreshUrl = apiBaseUrl + \"/auth/refresh-token\";",
-					"let tokenNeedsRenewal = true;",
-					"const gracePeriod = 60000; // 60 segundos antes de la expiración real para renovar",
-					"",
-					"",
-					"// =======================================================",
-					"// 2. VERIFICACIÓN DE EXPIRACIÓN DEL ACCESS TOKEN (AT)",
-					"// =======================================================",
-					"",
-					"if (accessToken) {",
-					"    try {",
-					"        const parts = accessToken.split('.');",
-					"        if (parts.length === 3) {",
-					"            const payload = JSON.parse(atob(parts[1]));",
-					"            const expirationTime = payload.exp * 1000; // Convertir segundos a milisegundos",
-					"            const currentTime = Date.now();",
-					"            ",
-					"            if (currentTime < expirationTime - gracePeriod) {",
-					"                // El token es válido y no está cerca de expirar.",
-					"                tokenNeedsRenewal = false;",
-					"            } else {",
-					"                // Token cerca de expirar.",
-					"                console.log(\"Token AT cerca de expirar. Iniciando rotación.\");",
-					"                tokenNeedsRenewal = true;",
-					"            }",
-					"        }",
-					"    } catch (e) {",
-					"        console.error(\"Error al decodificar el AT. Forzando renovación.\");",
-					"        tokenNeedsRenewal = true;",
-					"    }",
-					"} else {",
-					"    // Si no hay AT, necesitamos obtener uno.",
-					"    console.log(\"No se encontró AT. Se requiere renovación.\");",
-					"}",
-					"",
-					"",
-					"// =======================================================",
-					"// 3. LÓGICA DE RENOVACIÓN CONDICIONAL (RT)",
-					"// =======================================================",
-					"",
-					"// Si el AT necesita ser renovado (o no existe)",
-					"if (tokenNeedsRenewal) {",
-					"    ",
-					"    // Si no tenemos Refresh Token, no podemos renovar. ¡Fallo de flujo!",
-					"    if (!refreshToken) {",
-					"        console.error(\"❌ ERROR: No se puede renovar. Refresh Token ausente. Por favor, haga un login completo.\");",
-					"        // Detiene la ejecución del script y, por lo tanto, de la petición principal.",
-					"        throw new Error(\"Autenticación fallida: RT no disponible.\");",
-					"    }",
-					"    ",
-					"    console.log(\"Intentando renovar AT con RT...\");",
-					"",
-					"    // Configura la petición de Refresh Token",
-					"    const refreshRequest = {",
-					"        url: refreshUrl,",
-					"        method: 'POST',",
-					"        header: {",
-					"            // ⚠️ OJO: El RT se envía como Bearer Token al endpoint /refresh",
-					"            'Authorization': `Bearer ${refreshToken}`,",
-					"            'Content-Type': 'application/json'",
-					"        },",
-					"        body: {",
-					"            // El cuerpo puede ser vacío ya que todo está en el header",
-					"            mode: 'raw',",
-					"            raw: JSON.stringify({}) ",
-					"        }",
-					"    };",
-					"",
-					"    // Envía la petición de renovación de forma síncrona",
-					"    pm.sendRequest(refreshRequest, function (err, res) {",
-					"        if (err || res.code !== 200) {",
-					"            console.error(\"❌ Falló la rotación del Refresh Token.\", res ? res.json() : '');",
-					"            ",
-					"            // Borra ambos tokens para forzar un login completo en el siguiente intento",
-					"            pm.collectionVariables.unset(\"accessToken\");",
-					"            pm.collectionVariables.unset(\"refreshToken\");",
-					"            ",
-					"            throw new Error(\"Fallo la renovación del token. Sesión terminada.\");",
-					"",
-					"        } else {",
-					"            // Renovación exitosa",
-					"            const responseJson = res.json();",
-					"            const newAccessToken = responseJson.accessToken;",
-					"            const newRefreshToken = responseJson.refreshToken;",
-					"",
-					"            if (newAccessToken && newRefreshToken) {",
-					"                // Guardar AMBOS tokens (el RT fue rotado por el servidor)",
-					"                pm.collectionVariables.set(\"accessToken\", newAccessToken);",
-					"                pm.collectionVariables.set(\"refreshToken\", newRefreshToken);",
-					"                console.log(\"✅ Tokens renovados y guardados. AT:\", newAccessToken.substring(0, 30) + \"...\");",
-					"                // Actualiza el token local para que se use en el paso 4",
-					"                accessToken = newAccessToken;",
-					"            } else {",
-					"                 throw new Error(\"Renovación fallida: El servidor no devolvió ambos tokens.\");",
-					"            }",
-					"        }",
-					"    });",
-					"} else {",
-					"    console.log(\"Token AT existente. Reutilizando: \" + accessToken.substring(0, 30) + \"...\"); ",
-					"}"
+					""
 				]
 			}
 		},
 		{
 			"listen": "test",
 			"script": {
-				"id": "4b53d422-3459-4ab6-a472-1c0be482cec2",
+				"id": "99d5b2a1-9206-4315-8b99-b99ab765ecf1",
 				"type": "text/javascript",
 				"packages": {},
 				"requests": {},

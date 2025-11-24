@@ -72,6 +72,13 @@
 								"packages": {},
 								"requests": {}
 							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"packages": {},
+								"type": "text/javascript"
+							}
 						}
 					],
 					"id": "29096232-ac114dc0-2099-4732-9cad-ecd72733da65",
@@ -83,7 +90,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"password\": \"Jessy.2103\",\n  \"email\": \"jhonyhs95@outlook.com\"\n}",
+							"raw": "{\n  \"password\": \"Jessy.2103\",\n  \"email\": \"jhonyhs@gmail.com\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"

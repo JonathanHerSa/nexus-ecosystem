@@ -164,6 +164,39 @@
 				},
 				{
 					"name": "Refresh Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b928544b-1584-46f4-9825-1858fcb53d71",
+								"exec": [
+									"if (pm.response.code === 200 || pm.response.code === 201) {",
+									"    // 1. Convertir la respuesta JSON a objeto",
+									"    const response = pm.response.json();",
+									"",
+									"    // 2. Extraer los tokens",
+									"    const accessToken = response.accessToken;",
+									"    const refreshToken = response.refreshToken;",
+									"",
+									"    // 3. Guardar las variables en la Colección de Postman",
+									"    if (accessToken) {",
+									"        pm.collectionVariables.set(\"accessToken\", accessToken);",
+									"        pm.collectionVariables.set(\"refreshToken\", refreshToken);",
+									"",
+									"        console.log(\"✅ Tokens guardados. Nuevo AT:\", accessToken.substring(0, 20) + \"...\");",
+									"    } else {",
+									"        console.log(\"❌ La respuesta no contiene tokens.\");",
+									"    }",
+									"} else {",
+									"    console.log(\"La solicitud falló con código:\", pm.response.code);",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
 					"id": "29096232-452ff52a-fc9c-419b-b72d-9522c3e39aa4",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true

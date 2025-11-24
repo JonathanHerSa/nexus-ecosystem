@@ -37,7 +37,75 @@
 							]
 						}
 					},
-					"response": []
+					"response": [
+						{
+							"id": "29096232-d77cc4d5-b790-45ce-874f-090a3e353364",
+							"name": "SingUp",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"password\": \"Jessy.2103\",\n  \"companyName\": \"JonathanHerSa\",\n  \"email\": \"jhonyhs95@outlook.com\",\n  \"firstName\": \"Jonathan\",\n  \"lastName\": \"Hernandez\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/auth/sign-up",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"auth",
+										"sign-up"
+									]
+								}
+							},
+							"status": "Forbidden",
+							"code": 403,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "64"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"40-pB9lIcWuUaMI1BZkCoV3ulnw7Ok\""
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 24 Nov 2025 19:50:44 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"responseTime": null,
+							"body": "{\n    \"message\": \"Access denied\",\n    \"error\": \"Forbidden\",\n    \"statusCode\": 403\n}"
+						}
+					]
 				},
 				{
 					"name": "SignIn",

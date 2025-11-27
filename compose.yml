@@ -11,6 +11,29 @@ services:
   # -------------------------------------------------------
   # SERVICIO 1: AUTH SERVICE (Backend NestJS)
   # -------------------------------------------------------
+  # -------------------------------------------------------
+  # GATEWAY: API GATEWAY (Public Entry Point)
+  # -------------------------------------------------------
+  api-gateway:
+    container_name: Gateway
+    build:
+      context: ./Services/ApiGateway
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./Services/ApiGateway:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - NATS_SERVERS=nats://nats-server:4222
+    command: npm run start:debug
+    networks:
+      - nexus-dev-network
+
+  # -------------------------------------------------------
+  # SERVICIO 1: AUTH SERVICE (Backend NestJS)
+  # -------------------------------------------------------
   auth-service:
     container_name: Auth
     build:
@@ -26,6 +49,7 @@ services:
       - DATABASE_URL=postgresql://${AUTH_DB_USER}:${AUTH_DB_PASS}@Auth-DB:5432/${AUTH_DB_NAME}?schema=public
       - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET}
       - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+      - NATS_SERVERS=nats://nats-server:4222
     command: npm run start:debug
     depends_on:
       - auth-db
@@ -44,6 +68,18 @@ services:
       - "${AUTH_DB_PORT}:5432"
     volumes:
       - auth-postgres-data:/var/lib/postgresql/data
+    networks:
+      - nexus-dev-network
+
+  # -------------------------------------------------------
+  # SERVICIO DE MENSAJERÍA: NATS
+  # -------------------------------------------------------
+  nats-server:
+    image: nats:2.10-alpine
+    container_name: Nats-Server
+    ports:
+      - "4222:4222" # Client port
+      - "8222:8222" # HTTP monitoring port
     networks:
       - nexus-dev-network
 networks:

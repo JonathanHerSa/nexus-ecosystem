@@ -1,0 +1,48 @@
+name: Nexus Ecosystem CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate-ecosystem:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Ecosystem
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+          cache: "npm"
+          cache-dependency-path: "**/package-lock.json"
+
+      # -------------------------------------------------------
+      # VALIDATE AUTH MS
+      # -------------------------------------------------------
+      - name: Install AuthMS Dependencies
+        working-directory: ./AuthMS
+        run: npm ci
+
+      - name: Lint AuthMS
+        working-directory: ./AuthMS
+        run: npm run lint
+
+      - name: Generate AuthMS Prisma Client
+        working-directory: ./AuthMS
+        run: npx prisma generate
+
+      - name: Build AuthMS
+        working-directory: ./AuthMS
+        run: npm run build
+
+      - name: Test AuthMS (Unit)
+        working-directory: ./AuthMS
+        run: npm run test

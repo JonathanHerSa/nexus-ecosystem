@@ -1,5 +1,14 @@
 services:
   # -------------------------------------------------------
+  # PORT STRATEGY
+  # -------------------------------------------------------
+  # Gateway:    3000 (Public Entry Point)
+  # AuthMS:     3001 (Internal)
+  # Platform A: 3002 (Internal - Future)
+  # Platform B: 3003 (Internal - Future)
+  # -------------------------------------------------------
+
+  # -------------------------------------------------------
   # SERVICIO 1: AUTH SERVICE (Backend NestJS)
   # -------------------------------------------------------
   auth-service:
@@ -11,7 +20,7 @@ services:
       - ./AuthMS:/usr/src/app
       - /usr/src/app/node_modules
     ports:
-      - "3000:3000"
+      - "3001:3000" # Mapped to 3001 as per strategy
       - "9229:9229"
     environment:
       - DATABASE_URL=postgresql://${AUTH_DB_USER}:${AUTH_DB_PASS}@Auth-DB:5432/${AUTH_DB_NAME}?schema=public

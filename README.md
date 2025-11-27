@@ -4,7 +4,31 @@ Bienvenido al **Nexus Ecosystem**. Este repositorio sirve como el núcleo centra
 
 ## Arquitectura del Sistema
 
-El sistema está diseñado para ser modular y escalable. Cada componente principal (como el servicio de Autenticación) reside en su propio repositorio y se integra aquí como un submódulo. Esto permite un desarrollo independiente de cada módulo mientras se mantiene una estructura cohesiva para el despliegue y la integración.
+El sistema está diseñado para ser modular y escalable, compuesto por plataformas independientes orquestadas por un API Gateway central.
+
+### Componentes Clave
+
+1.  **API Gateway (Futuro)**: Punto de entrada único para todo el tráfico externo.
+2.  **AuthMS**: Microservicio central de autenticación e identidad.
+3.  **Plataformas Independientes**: Sistemas autónomos que consumen AuthMS para validación de identidad pero operan de forma aislada.
+
+## Estrategia de Puertos
+
+Para evitar conflictos en desarrollo local y estandarizar la orquestación:
+
+| Servicio         | Puerto Host | Tipo        | Descripción                          |
+| :--------------- | :---------- | :---------- | :----------------------------------- |
+| **Gateway**      | `3000`      | **Público** | Punto de entrada principal (Ingress) |
+| **AuthMS**       | `3001`      | Privado     | Servicio de Identidad                |
+| **Plataforma A** | `3002`      | Privado     | Futuro sistema independiente         |
+| **Plataforma B** | `3003`      | Privado     | Futuro sistema independiente         |
+
+## Integración Continua (CI/CD)
+
+El repositorio cuenta con un pipeline centralizado (`.github/workflows/ecosystem-ci.yml`) que valida automáticamente la integridad de todos los submódulos.
+
+- **Checkout Recursivo**: Descarga todos los submódulos.
+- **Validación**: Ejecuta linting, compilación y pruebas unitarias para cada servicio (actualmente AuthMS).
 
 ## Comenzando
 
@@ -55,12 +79,12 @@ git pull origin main
 
 ## Módulos Actuales
 
-### [Auth](./Auth)
+### [Auth](./AuthMS)
 
 El servicio de Autenticación maneja el registro de usuarios, inicio de sesión y gestión de tokens.
 
 - **Tecnologías**: NestJS, Prisma, PostgreSQL.
-- **Ubicación**: `./Auth`
+- **Ubicación**: `./AuthMS`
 
 ---
 

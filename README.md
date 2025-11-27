@@ -54,12 +54,18 @@ git submodule update --init --recursive
 
 ### Agregar un Nuevo Submódulo
 
-Para añadir un nuevo servicio o componente al ecosistema:
+Para añadir un nuevo servicio o aplicación al ecosistema, utiliza `git submodule add` apuntando a la carpeta correcta (`Services/` o `Apps/`).
+
+**Ejemplo para un Servicio (Backend):**
 
 ```bash
-git submodule add <url-del-repositorio> <ruta-de-destino>
-# Ejemplo:
-# git submodule add https://github.com/usuario/nuevo-servicio.git Services/NuevoServicio
+git submodule add https://github.com/usuario/nuevo-servicio-api.git Services/NuevoServicio
+```
+
+**Ejemplo para una App (Frontend):**
+
+```bash
+git submodule add https://github.com/usuario/nueva-app-web.git Apps/NuevaApp
 ```
 
 ### Actualizar Submódulos
@@ -77,14 +83,21 @@ cd Auth
 git pull origin main
 ```
 
+## Estructura del Proyecto
+
+El repositorio se organiza en dos directorios principales para separar responsabilidades:
+
+- **`Services/`**: Contiene los microservicios backend (APIs).
+- **`Apps/`**: Contiene las aplicaciones frontend (Web/Mobile).
+
 ## Módulos Actuales
 
-### [Auth](./AuthMS)
+### [Auth](./Services/AuthMS)
 
 El servicio de Autenticación maneja el registro de usuarios, inicio de sesión y gestión de tokens.
 
 - **Tecnologías**: NestJS, Prisma, PostgreSQL.
-- **Ubicación**: `./AuthMS`
+- **Ubicación**: `./Services/AuthMS`
 
 ---
 

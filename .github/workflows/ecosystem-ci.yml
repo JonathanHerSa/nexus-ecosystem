@@ -28,21 +28,21 @@ jobs:
       # VALIDATE AUTH MS
       # -------------------------------------------------------
       - name: Install AuthMS Dependencies
-        working-directory: ./AuthMS
+        working-directory: ./Services/AuthMS
         run: npm ci
 
       - name: Lint AuthMS
-        working-directory: ./AuthMS
+        working-directory: ./Services/AuthMS
         run: npm run lint
 
       - name: Generate AuthMS Prisma Client
-        working-directory: ./AuthMS
+        working-directory: ./Services/AuthMS
         run: npx prisma generate
 
       - name: Build AuthMS
-        working-directory: ./AuthMS
+        working-directory: ./Services/AuthMS
         run: npm run build
 
       - name: Test AuthMS (Unit)
-        working-directory: ./AuthMS
+        working-directory: ./Services/AuthMS
         run: npm run test

@@ -1,3 +1,6 @@
 [submodule "AuthMS"]
 	path = Services/AuthMS
 	url = https://github.com/JonathanHerSa/auth-nexus.git
+[submodule "Apps/AuthMS"]
+	path = Apps/AuthMS
+	url = https://github.com/JonathanHerSa/auth-nexus-front.git

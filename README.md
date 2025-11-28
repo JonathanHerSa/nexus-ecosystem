@@ -1,16 +1,43 @@
 # Nexus Ecosystem
 
-Bienvenido al **Nexus Ecosystem**. Este repositorio sirve como el núcleo central para una arquitectura modular basada en microservicios y componentes reutilizables, gestionados a través de submodulos de Git.
+Bienvenido al **Nexus Ecosystem**. Este repositorio sirve como el núcleo central para una arquitectura modular basada en microservicios y componentes reutilizables, gestionados a través de submódulos de Git.
 
 ## Arquitectura del Sistema
 
-El sistema está diseñado para ser modular y escalable, compuesto por plataformas independientes orquestadas por un API Gateway central.
+El sistema está diseñado con una arquitectura de microservicios moderna, donde un **API Gateway** centraliza el acceso y los microservicios backend manejan la lógica de negocio.
 
 ### Componentes Clave
 
-1.  **API Gateway (Futuro)**: Punto de entrada único para todo el tráfico externo.
-2.  **AuthMS**: Microservicio central de autenticación e identidad.
-3.  **Plataformas Independientes**: Sistemas autónomos que consumen AuthMS para validación de identidad pero operan de forma aislada.
+1. **API Gateway** (`Services/ApiGateway`): Punto de entrada único para todo el tráfico externo
+
+   - Maneja autenticación HTTP (guards, estrategias Passport)
+   - Valida tokens JWT y permisos
+   - Enruta requests a microservicios vía NATS
+   - Expone endpoints: `/auth/*`, `/rbac/*`, `/health`
+
+2. **AuthMS** (`Services/AuthMS`): Microservicio de autenticación, autorización y gestión de identidad
+
+   - Lógica de negocio de autenticación
+   - Gestión de usuarios, roles y permisos (RBAC)
+   - Generación y validación de tokens JWT
+   - Comunicación vía NATS (no expone HTTP directamente)
+
+3. **Auth App** (`Apps/AuthMS`): Frontend de autenticación (Next.js)
+
+### Separación de Responsabilidades
+
+```
+┌─────────────────┐
+│   API Gateway   │ ← Autenticación HTTP, Validación JWT, Guards
+│   (Port 3000)   │
+└────────┬────────┘
+         │ NATS
+         ↓
+┌─────────────────┐
+│     AuthMS      │ ← Lógica de negocio, Base de datos
+│   (Port 3001)   │
+└─────────────────┘
+```
 
 ## Estrategia de Puertos
 
@@ -18,43 +45,104 @@ Para evitar conflictos en desarrollo local y estandarizar la orquestación:
 
 | Servicio         | Puerto Host | Tipo        | Descripción                          |
 | :--------------- | :---------- | :---------- | :----------------------------------- |
-| **Gateway**      | `3000`      | **Público** | Punto de entrada principal (Ingress) |
-| **AuthMS**       | `3001`      | Privado     | Servicio de Identidad                |
+| **API Gateway**  | `3000`      | **Público** | Punto de entrada principal (Ingress) |
+| **AuthMS**       | `3001`      | Privado     | Servicio de Identidad y RBAC         |
+| **NATS**         | `4222`      | Privado     | Message broker                       |
 | **Plataforma A** | `3002`      | Privado     | Futuro sistema independiente         |
 | **Plataforma B** | `3003`      | Privado     | Futuro sistema independiente         |
+
+## Endpoints Disponibles
+
+### Autenticación (`/auth`)
+
+- `POST /auth/sign-up` - Registro de usuario
+- `POST /auth/sign-in` - Inicio de sesión
+- `POST /auth/log-out` - Cerrar sesión
+- `POST /auth/refresh-token` - Refrescar tokens
+- `POST /auth/forgot-password` - Recuperar contraseña
+- `POST /auth/reset-password` - Restablecer contraseña
+- `POST /auth/enable-2fa` - Habilitar autenticación 2FA
+- `POST /auth/verify-2fa` - Verificar código 2FA
+- `POST /auth/generate-2fa-secret` - Generar secreto 2FA
+
+### Control de Acceso (`/rbac`)
+
+- `POST /rbac/role` - Crear rol
+- `GET /rbac/role` - Obtener roles del tenant
+- `POST /rbac/role/:roleId/permissions` - Asignar permisos a rol
+- `DELETE /rbac/role/:id` - Eliminar rol
+- `POST /rbac/permission` - Crear permiso
+- `GET /rbac/permission` - Obtener permisos
+
+### Health Check (`/health`)
+
+- `GET /health` - Verificar estado del sistema
 
 ## Integración Continua (CI/CD)
 
 El repositorio cuenta con un pipeline centralizado (`.github/workflows/ecosystem-ci.yml`) que valida automáticamente la integridad de todos los submódulos.
 
-- **Checkout Recursivo**: Descarga todos los submódulos.
-- **Validación**: Ejecuta linting, compilación y pruebas unitarias para cada servicio (actualmente AuthMS).
+- **Checkout Recursivo**: Descarga todos los submódulos
+- **Validación**: Ejecuta linting, compilación y pruebas unitarias para cada servicio
 
 ## Comenzando
 
 ### Prerrequisitos
 
-- Git instalado en tu sistema.
+- Node.js 18+ y npm
+- Docker y Docker Compose
+- Git instalado en tu sistema
 
 ### Clonar el Repositorio
 
-Para clonar este repositorio junto con todos sus submódulos, utiliza el siguiente comando:
+Para clonar este repositorio junto con todos sus submódulos:
 
 ```bash
 git clone --recursive https://github.com/JonathanHerSa/nexus-ecosystem.git
 ```
 
-Si ya has clonado el repositorio sin la opción `--recursive`, puedes inicializar y actualizar los submódulos con:
+Si ya has clonado el repositorio sin la opción `--recursive`:
 
 ```bash
 git submodule update --init --recursive
 ```
 
+### Iniciar el Ecosistema
+
+1. **Configurar variables de entorno**:
+
+   ```bash
+   # En Services/ApiGateway/.env
+   JWT_SECRET=tu_secret_aqui
+   JWT_REFRESH_SECRET=tu_refresh_secret_aqui
+
+   # En Apps/AuthMS/.env
+   DATABASE_URL=postgresql://...
+   ```
+
+2. **Iniciar servicios con Docker Compose**:
+
+   ```bash
+   docker-compose up -d
+   ```
+
+3. **O iniciar manualmente**:
+
+   ```bash
+   # Terminal 1 - AuthMS
+   cd Apps/AuthMS
+   npm install
+   npm run start:dev
+
+   # Terminal 2 - API Gateway
+   cd Services/ApiGateway
+   npm install
+   npm run start:dev
+   ```
+
 ## Gestión de Submódulos
 
 ### Agregar un Nuevo Submódulo
-
-Para añadir un nuevo servicio o aplicación al ecosistema, utiliza `git submodule add` apuntando a la carpeta correcta (`Services/` o `Apps/`).
 
 **Ejemplo para un Servicio (Backend):**
 
@@ -70,34 +158,56 @@ git submodule add https://github.com/usuario/nueva-app-web.git Apps/NuevaApp
 
 ### Actualizar Submódulos
 
-Para actualizar todos los submódulos a su última versión en la rama remota configurada:
+Para actualizar todos los submódulos:
 
 ```bash
 git submodule update --remote
 ```
 
-Para actualizar un submódulo específico, navega a su directorio y haz un pull:
+Para actualizar un submódulo específico:
 
 ```bash
-cd Auth
+cd Apps/AuthMS
 git pull origin main
 ```
 
 ## Estructura del Proyecto
 
-El repositorio se organiza en dos directorios principales para separar responsabilidades:
-
-- **`Services/`**: Contiene los microservicios backend (APIs).
-- **`Apps/`**: Contiene las aplicaciones frontend (Web/Mobile).
+```
+nexus-ecosystem/
+├── Services/              # Microservicios backend
+│   └── ApiGateway/       # API Gateway (NestJS)
+├── Apps/                  # Aplicaciones y microservicios
+│   └── AuthMS/           # Servicio de autenticación (NestJS)
+├── compose.yml           # Docker Compose para orquestación
+└── .github/
+    └── workflows/
+        └── ecosystem-ci.yml  # CI/CD centralizado
+```
 
 ## Módulos Actuales
 
-### [Auth](./Services/AuthMS)
+### [API Gateway](./Services/ApiGateway)
 
-El servicio de Autenticación maneja el registro de usuarios, inicio de sesión y gestión de tokens.
+Punto de entrada HTTP del ecosistema. Maneja autenticación, validación y enrutamiento.
 
-- **Tecnologías**: NestJS, Prisma, PostgreSQL.
-- **Ubicación**: `./Services/AuthMS`
+- **Tecnologías**: NestJS, Passport, JWT, NATS
+- **Puerto**: 3000
+- **Ubicación**: `./Services/ApiGateway`
+
+### [AuthMS](./Apps/AuthMS)
+
+Microservicio de autenticación, autorización y gestión de identidad.
+
+- **Tecnologías**: NestJS, Prisma, PostgreSQL, NATS
+- **Puerto**: 3001 (privado)
+- **Ubicación**: `./Apps/AuthMS`
+- **Características**:
+  - Autenticación con JWT (Access + Refresh tokens)
+  - RBAC (Roles y Permisos)
+  - Multi-tenancy
+  - Autenticación de dos factores (2FA)
+  - Auditoría de sesiones
 
 ---
 

@@ -1,5 +1,24 @@
 # Nexus Ecosystem
 
+<p align="center">
+  <img src="https://nestjs.com/img/logo_text.svg" alt="NestJS" height="40"/>
+  <img src="https://raw.githubusercontent.com/docker-library/docs/master/docker/logo.png" alt="Docker" height="40"/>
+  <img src="https://www.postgresql.org/media/img/about/press/elephant.png" alt="PostgreSQL" height="40"/>
+  <img src="https://nats.io/img/nats-icon-color.png" alt="NATS" height="40"/>
+  <img src="https://assets.vercel.com/image/upload/v1662130559/nextjs/Icon_dark_background.png" alt="Next.js" height="40"/>
+</p>
+
+<p align="center">
+  <a href="https://nestjs.com"><img src="https://img.shields.io/badge/NestJS-EA2845?style=for-the-badge&logo=nestjs&logoColor=white"/></a>
+  <a href="https://www.docker.com/"><img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white"/></a>
+  <a href="https://www.prisma.io/"><img src="https://img.shields.io/badge/Prisma-2D3748?style=for-the-badge&logo=prisma&logoColor=white"/></a>
+  <a href="https://www.postgresql.org/"><img src="https://img.shields.io/badge/PostgreSQL-336791?style=for-the-badge&logo=postgresql&logoColor=white"/></a>
+  <a href="https://nats.io/"><img src="https://img.shields.io/badge/NATS-1D8FCD?style=for-the-badge&logo=nats.io&logoColor=white"/></a>
+  <a href="https://nextjs.org/"><img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white"/></a>
+  <a href="https://tailwindcss.com/"><img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white"/></a>
+  <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white"/></a>
+</p>
+
 Bienvenido al **Nexus Ecosystem**. Este repositorio sirve como el núcleo central para una arquitectura modular basada en microservicios y componentes reutilizables, gestionados a través de submódulos de Git.
 
 ## Arquitectura del Sistema

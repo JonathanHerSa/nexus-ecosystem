@@ -82,6 +82,7 @@ services:
       - "8222:8222" # HTTP monitoring port
     networks:
       - nexus-dev-network
+
 networks:
   nexus-dev-network:
     driver: bridge
